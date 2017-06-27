@@ -251,7 +251,7 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
         """
         return instance_loader.get_instance(row)
 
-    def get_or_init_instance(self, instance_loader, row):
+    def get_or_init_instance(self, instance_loader, row, **kwargs):
         """
         Either fetches an already existing instance or initializes a new one.
         """
@@ -433,7 +433,7 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
         row_result = self.get_row_result_class()()
         try:
             self.before_import_row(row, **kwargs)
-            instance, new = self.get_or_init_instance(instance_loader, row)
+            instance, new = self.get_or_init_instance(instance_loader, row, **kwargs)
             self.after_import_instance(instance, new, **kwargs)
             if new:
                 row_result.import_type = RowResult.IMPORT_TYPE_NEW

@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+import json
 from datetime import datetime
 
 import importlib
@@ -161,7 +162,7 @@ class ImportMixin(ImportExportMixinBase):
             if not input_format.is_binary() and self.from_encoding:
                 data = force_text(data, self.from_encoding)
             dataset = input_format.create_dataset(data)
-
+            kwargs['request_data'] = json.loads(request.POST['json_data'])
             result = self.process_dataset(dataset, confirm_form, request, *args, **kwargs)
 
             tmp_storage.remove()
@@ -273,7 +274,8 @@ class ImportMixin(ImportExportMixinBase):
             result = resource.import_data(dataset, dry_run=True,
                                           raise_errors=False,
                                           file_name=import_file.name,
-                                          user=request.user)
+                                          user=request.user,
+                                          request_data=request.POST)
 
             context['result'] = result
 
@@ -282,6 +284,7 @@ class ImportMixin(ImportExportMixinBase):
                     'import_file_name': tmp_storage.name,
                     'original_file_name': import_file.name,
                     'input_format': form.cleaned_data['input_format'],
+                    'json_data': json.dumps(dict(request.POST))
                 })
 
         if django.VERSION >= (1, 8, 0):
